@@ -71,23 +71,9 @@
             </div>
         </div>
 
-        <div v-if="kr36" class="mt-3 py-2 fs-5 ly-content">
-            <h3 class="px-3 py-1 ff-xdksh">36氪</h3>
-            <div class="d-flex px-3 py-1" v-for="[k,v] in kr36">
-                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
-            </div>
-        </div>
-
-        <div v-if="ithome" class="mt-3 py-2 fs-5 ly-content">
-            <h3 class="px-3 py-1 ff-xdksh">IT之家</h3>
-            <div class="d-flex px-3 py-1" v-for="[k,v] in ithome">
-                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
-            </div>
-        </div>
-
-        <div v-if="today" class="mt-3 py-2 fs-5 ly-content">
-            <h3 class="px-3 py-1 ff-xdksh">历史上的今天</h3>
-            <div class="d-flex px-3 py-1" v-for="[k,v] in today">
+        <div v-for="item in news" class="mt-3 py-2 fs-5 ly-content">
+            <h3 class="px-3 py-1 ff-xdksh">{{item.title}}</h3>
+            <div class="d-flex px-3 py-1" v-for="[k,v] in item.list">
                 <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
             </div>
         </div>
@@ -102,14 +88,13 @@
             data() {
                 return {
                     api: 'https://api.rehi.org',
-                    title: '摸鱼日报',
-                    city: '北京',
+                    title: '',
+                    city: '',
                     calendar: {},
                     datatime: [],
                     weather: {},
-                    ithome: null,
-                    today: null,
-                    kr36: null,
+                    newsType: '',
+                    news: [],
                 };
             },
             created() {
@@ -119,9 +104,10 @@
                 this.getCalendar();
             },
             methods: {
-                fetchData() {
+                async fetchData() {
                     // 获取查询参数
                     const params = new URLSearchParams(location.search);
+                    this.newsType = params.get('news') || 'ithome,36kr,calendar';
                     this.title = params.get('title') || '摸鱼日报';
                     this.city = params.get('city') || '青岛';
                     document.title = this.title;
@@ -129,15 +115,11 @@
                     fetch(this.api + '/weather/' + this.city).then((r) => r.json()).then((data) => {
                         this.weather = data || {};
                     });
-                    fetch(this.api + '/news/ithome').then((r) => r.json()).then((data) => {
-                        this.ithome = data;
-                    });
-                    fetch(this.api + '/news/36kr').then((r) => r.json()).then((data) => {
-                        this.kr36 = data;
-                    });
-                    fetch(this.api + '/news/calendar').then((r) => r.json()).then((data) => {
-                        this.today = data;
-                    });
+                    for (const type of this.newsType.split(',')) {
+                        let data = await fetch(this.api + '/news/' + type).then((r) => r.json())
+                        data.list = data.list.slice(0, 10);
+                        this.news.push(data);
+                    }
                 },
                 setStyle() {
                     const root = document.documentElement;
