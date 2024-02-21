@@ -109,12 +109,11 @@
                     const params = new URLSearchParams(location.search);
                     this.newsType = params.get('news') || 'ithome,36kr,calendar';
                     this.title = params.get('title') || '摸鱼日报';
-                    this.city = params.get('city') || '青岛';
+                    this.city = params.get('city') || '';
                     document.title = this.title;
-                    // 从接口获取数据
-                    fetch(this.api + '/weather/' + this.city).then((r) => r.json()).then((data) => {
-                        this.weather = data || {};
-                    });
+                    // 获取天气信息
+                    this.geoWeather();
+                    // 从接口获取新闻
                     for (const type of this.newsType.split(',')) {
                         let data = await fetch(this.api + '/news/' + type).then((r) => r.json())
                         data.list = data.list.slice(0, 10);
@@ -157,6 +156,31 @@
                     const elem = document.getElementById('qrcode');
                     new QRCode(elem, { text: location.href, width: 128, height: 128 });
                 },
+                geoWeather() {
+                    const getWeather = () => {
+                        fetch(this.api + '/weather/' + this.city).then((r) => r.json()).then((data) => {
+                            this.weather = data || {};
+                        });
+                    };
+                    if (this.city) {
+                        getWeather();
+                    }
+                    else if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                this.city = position.coords.longitude + ',' + position.coords.latitude;
+                                getWeather();
+                            },
+                            (error) => {
+                                this.city = '北京';
+                                getWeather();
+                            }
+                        );
+                    } else {
+                        this.city = '北京';
+                        getWeather();
+                    }
+                }
             },
         }).mount('#app');
     </script>
