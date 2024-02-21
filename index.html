@@ -158,26 +158,25 @@
                 },
                 geoWeather() {
                     const getWeather = () => {
-                        fetch(this.api + '/weather/' + this.city).then((r) => r.json()).then((data) => {
+                        const q = this.city ? '/' + this.city : '';
+                        fetch(this.api + '/weather' + q).then((r) => r.json()).then((data) => {
                             this.weather = data || {};
                         });
                     };
                     if (this.city) {
-                        getWeather();
+                      return getWeather();
                     }
-                    else if (navigator.geolocation) {
+                    if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                             (position) => {
                                 this.city = position.coords.longitude + ',' + position.coords.latitude;
                                 getWeather();
                             },
                             (error) => {
-                                this.city = '北京';
                                 getWeather();
                             }
                         );
                     } else {
-                        this.city = '北京';
                         getWeather();
                     }
                 }
