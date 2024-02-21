@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<head>
+    <title>摸鱼日报</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="viewport-fit=cover,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="//jscdn.rehi.org/npm/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="//jscdn.rehi.org/npm/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <script type="text/javascript" src="//jscdn.rehi.org/npm/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="//jscdn.rehi.org/npm/vue/dist/vue.global.min.js"></script>
+    <script type="text/javascript" src="//jscdn.rehi.org/npm/vue-router/dist/vue-router.global.min.js"></script>
+    <script type="text/javascript" src="//jscdn.rehi.org/gh/hkargv/paipan/js/paipan.min.js"></script>
+    <script type="text/javascript" src="//jscdn.rehi.org/npm/qrcode_js/qrcode.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/fonts/index.css" />
+    <style type="text/css">
+        :root {
+            --bg-image-1: url(/images/bg11.jpg);
+            --bg-image-2: url(/images/bg12.png);
+        }
+
+        body {
+            background: var(--bg-image-1) no-repeat;
+            background-size: cover;
+        }
+
+        .logo {
+            background: var(--bg-image-2) no-repeat;
+            background-size: cover;
+            font-family: xuandongkaishu;
+            font-size: 4rem;
+        }
+
+        .ff-xdksh {
+            font-family: xuandongkaishu;
+        }
+
+        .ly-content {
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container-fluid p-3">
+
+        <header class="row mx-0 text-center">
+            <div class="col-12 col-sm-7 logo text-white">
+                {{title}}
+            </div>
+            <div class="col-12 col-sm-5 px-0 ps-sm-3">
+                <div class="h-100 p-2 fs-4 ly-content d-flex align-items-center justify-content-center">
+                    {{datetime[0]}}&nbsp;{{datetime[1]}}<br/>
+                    {{calendar.lunar}}
+                </div>
+            </div>
+        </header>
+
+        <div v-if="weather.realtime" class="row mx-0 mt-3">
+            <div class="col-12 col-sm-3 px-0 pe-sm-3">
+                <div class="p-3 h-100 ly-content d-flex align-items-center justify-content-center">
+                    <img style="height: 100px" :src="api + weather.realtime.skycon" />
+                </div>
+            </div>
+            <div class="col-12 col-sm-9 px-3 py-2 fs-5 ly-content">
+                <b>{{weather.address.join('')}}</b>，{{weather.description}}；{{weather.forecast}}；
+                气温：{{weather.realtime.temperature}} ℃，体感：{{weather.realtime.apparent_temperature}} ℃；
+                相对湿度：{{parseInt(weather.realtime.humidity * 100)}}%；风速：{{weather.realtime.wind.speed}}米/秒；
+                空气质量：{{weather.realtime.air_quality.description.chn}}，PM2.5：{{weather.realtime.air_quality.pm25}}，PM10：{{weather.realtime.air_quality.pm10}}；
+                舒适度指数：{{weather.realtime.life_index.comfort.index}}，{{weather.realtime.life_index.comfort.desc}}；
+                紫外线指数：{{weather.realtime.life_index.ultraviolet.index}}，{{weather.realtime.life_index.ultraviolet.desc}}；
+            </div>
+        </div>
+
+        <div v-if="kr36" class="mt-3 py-2 fs-5 ly-content">
+            <h3 class="px-3 py-1 ff-xdksh">36氪</h3>
+            <div class="d-flex px-3 py-1" v-for="[k,v] in kr36">
+                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
+            </div>
+        </div>
+
+        <div v-if="ithome" class="mt-3 py-2 fs-5 ly-content">
+            <h3 class="px-3 py-1 ff-xdksh">IT之家</h3>
+            <div class="d-flex px-3 py-1" v-for="[k,v] in ithome">
+                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
+            </div>
+        </div>
+
+        <div v-if="today" class="mt-3 py-2 fs-5 ly-content">
+            <h3 class="px-3 py-1 ff-xdksh">历史上的今天</h3>
+            <div class="d-flex px-3 py-1" v-for="[k,v] in today">
+                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid opacity-75 pb-3 ps-3">
+        <div id="qrcode"></div>
+    <div>
+
+    <script type="text/javascript">
+        Vue.createApp({
+            data() {
+                return {
+                    api: 'https://api.rehi.org',
+                    title: '摸鱼日报',
+                    city: '北京',
+                    calendar: {},
+                    datatime: [],
+                    weather: {},
+                    ithome: null,
+                    today: null,
+                    kr36: null,
+                };
+            },
+            created() {
+                this.setStyle();
+                this.fetchData();
+                this.createQRCode();
+                this.getCalendar();
+            },
+            methods: {
+                fetchData() {
+                    // 获取查询参数
+                    const params = new URLSearchParams(location.search);
+                    this.title = params.get('title') || '摸鱼日报';
+                    this.city = params.get('city') || '青岛';
+                    document.title = this.title;
+                    // 从接口获取数据
+                    fetch(this.api + '/weather/' + this.city).then((r) => r.json()).then((data) => {
+                        this.weather = data || {};
+                    });
+                    fetch(this.api + '/news/ithome').then((r) => r.json()).then((data) => {
+                        this.ithome = data;
+                    });
+                    fetch(this.api + '/news/36kr').then((r) => r.json()).then((data) => {
+                        this.kr36 = data;
+                    });
+                    fetch(this.api + '/news/calendar').then((r) => r.json()).then((data) => {
+                        this.today = data;
+                    });
+                },
+                setStyle() {
+                    const root = document.documentElement;
+                    const n = Math.max(1, Math.floor(Math.random() * 7));
+                    root.style.setProperty('--bg-image-1', `url(/images/bg${n}1.jpg)`);
+                    root.style.setProperty('--bg-image-2', `url(/images/bg${n}2.png)`);
+                },
+                getCalendar() {
+                    const p = new paipan()
+                    // 当前日期
+                    const d = new Date();
+                    const yy = d.getFullYear();
+                    const mm = d.getMonth() + 1;
+                    const dd = d.getDate();
+                    const hh = d.getHours();
+                    const mt = d.getMinutes();
+                    const ss = d.getSeconds();
+                    // 公历时间
+                    const hours = hh.toString().padStart(2, '0');
+                    const minutes = mt.toString().padStart(2, '0');
+                    const seconds = ss.toString().padStart(2, '0');
+                    const daysOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                    const dayOfWeek = daysOfWeek[d.getDay()];
+                    this.datetime = [yy + '年' + mm + '月' + dd + '日', dayOfWeek, hours + ':' + minutes + ':' + seconds];
+                    // 农历日期
+                    const fm = p.fatemaps(0, yy, mm, dd, hh, mt, ss);
+                    const y = fm.nl[0].toString().split('');
+                    let s = '';
+                    for (let i = 0; i < y.length; i++) {
+                        s += p.dxs[y[i]];
+                    }
+                    this.calendar.lunar = s + '(' + fm.nl[4].gz + ')' + '年' + (fm.nl[3] ? '闰' : '') + p.dxy[fm.nl[1] - 1] + p.dxd[fm.nl[2] - 1];
+                },
+                createQRCode() {
+                    const elem = document.getElementById('qrcode');
+                    new QRCode(elem, { text: location.href, width: 128, height: 128 });
+                },
+            },
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
