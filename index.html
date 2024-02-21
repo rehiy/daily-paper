@@ -48,9 +48,9 @@
                 {{title}}
             </div>
             <div class="col-12 col-sm-5 px-0 ps-sm-3">
-                <div class="h-100 p-2 fs-4 ly-content d-flex align-items-center justify-content-center">
-                    {{datetime[0]}}&nbsp;{{datetime[1]}}<br/>
-                    {{calendar.lunar}}
+                <div class="h-100 p-2 ly-content d-flex flex-column align-items-center justify-content-center">
+                    <div class="fs-4">{{datetime[0]}} {{datetime[1]}}</div>
+                    <div class="fs-5">{{calendar.lunar}}</div>
                 </div>
             </div>
         </header>
@@ -169,7 +169,7 @@
                     for (let i = 0; i < y.length; i++) {
                         s += p.dxs[y[i]];
                     }
-                    this.calendar.lunar = s + '(' + fm.nl[4].gz + ')' + '年' + (fm.nl[3] ? '闰' : '') + p.dxy[fm.nl[1] - 1] + p.dxd[fm.nl[2] - 1];
+                    this.calendar.lunar = s + '(' + fm.nl[4].gz + ')' + '年 ' + (fm.nl[3] ? '闰' : '') + p.dxy[fm.nl[1] - 1] + p.dxd[fm.nl[2] - 1];
                 },
                 createQRCode() {
                     const elem = document.getElementById('qrcode');
