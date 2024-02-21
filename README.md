@@ -9,3 +9,11 @@
 - 将源码上传到服务器，使用自己设置的域名访问即可
 - 将 [worker.js](./worker.js) 部署到 Cloudflare Worker，实现无服务器部署
 - 将项目 [fork](https://github.com/rehiy/daily-paper/fork) 到自己的 github，连接到 Cloudflare Worker & Pages，实现无服务器部署
+
+## 参数解析
+
+`?title=明天不上班&city=北京&news=36kr,ithome,calendar`
+
+- title - 标题，建议不超过6个字
+- city - 城市，支持中国大陆地址，可以具体到区/县
+- news - 新闻类型，支持的类型有: `36kr,baidu,bilibili,douban_group,douban_new,douyin,douyin_music,genshin,github,ithome,juejin,kuaishou,lol,netease,netease_music_toplist,newsqq,ngabbs,qq_music_toplist,sspai,thepaper,tieba,toutiao,v2ex,weibo,weread,zhihu`
