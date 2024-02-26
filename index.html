@@ -73,116 +73,116 @@
 
         <div v-for="item in news" class="mt-3 py-2 fs-5 ly-content">
             <h3 class="px-3 py-1 ff-xdksh">{{item.title}}</h3>
-            <div class="d-flex px-3 py-1" v-for="[k,v] in item.list">
-                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="v" target="_blank">{{k}}</a>
+            <div class="d-flex px-3 py-1" v-for="{title, url} in item.list">
+                <b>-&nbsp;</b><a class="link-dark text-decoration-none" :href="url" target="_blank">{{title}}</a>
             </div>
         </div>
     </div>
 
     <div class="container-fluid opacity-75 pb-3 ps-3">
         <div id="qrcode"></div>
-        <div>
+    </div>
 
-            <script type="text/javascript">
-                Vue.createApp({
-                    data() {
-                        return {
-                            api: 'https://api.rehi.org',
-                            title: '',
-                            city: '',
-                            calendar: {},
-                            datatime: [],
-                            weather: {},
-                            newsType: '',
-                            news: [],
-                        };
-                    },
-                    created() {
-                        this.setStyle();
-                        this.fetchData();
-                        this.createQRCode();
-                        this.getCalendar();
-                    },
-                    methods: {
-                        async fetchData() {
-                            // 获取查询参数
-                            const params = new URLSearchParams(location.search);
-                            this.newsType = params.get('news') || 'ithome,36kr,calendar';
-                            this.title = params.get('title') || '摸鱼日报';
-                            this.city = params.get('city') || '';
-                            document.title = this.title;
-                            // 获取天气信息
-                            this.geoWeather();
-                            // 从接口获取新闻
-                            for (const type of this.newsType.split(',')) {
-                                let data = await fetch(this.api + '/news/' + type).then((r) => r.json())
-                                data.list = data.list.slice(0, 10);
-                                this.news.push(data);
-                            }
-                        },
-                        setStyle() {
-                            const root = document.documentElement;
-                            const n = Math.max(1, Math.floor(Math.random() * 7));
-                            root.style.setProperty('--bg-image-1', `url(/images/bg${n}1.jpg)`);
-                            root.style.setProperty('--bg-image-2', `url(/images/bg${n}2.png)`);
-                        },
-                        getCalendar() {
-                            const p = new paipan()
-                            // 当前日期
-                            const d = new Date();
-                            const yy = d.getFullYear();
-                            const mm = d.getMonth() + 1;
-                            const dd = d.getDate();
-                            const hh = d.getHours();
-                            const mt = d.getMinutes();
-                            const ss = d.getSeconds();
-                            // 公历时间
-                            const hours = hh.toString().padStart(2, '0');
-                            const minutes = mt.toString().padStart(2, '0');
-                            const seconds = ss.toString().padStart(2, '0');
-                            const daysOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-                            const dayOfWeek = daysOfWeek[d.getDay()];
-                            this.datetime = [yy + '年' + mm + '月' + dd + '日', dayOfWeek, hours + ':' + minutes + ':' + seconds];
-                            // 农历日期
-                            const fm = p.fatemaps(0, yy, mm, dd, hh, mt, ss);
-                            const y = fm.nl[0].toString().split('');
-                            let s = '';
-                            for (let i = 0; i < y.length; i++) {
-                                s += p.dxs[y[i]];
-                            }
-                            this.calendar.lunar = s + '(' + fm.nl[4].gz + ')' + '年 ' + (fm.nl[3] ? '闰' : '') + p.dxy[fm.nl[1] - 1] + p.dxd[fm.nl[2] - 1];
-                        },
-                        createQRCode() {
-                            const elem = document.getElementById('qrcode');
-                            new QRCode(elem, { text: location.href, width: 128, height: 128 });
-                        },
-                        geoWeather() {
-                            const getWeather = () => {
-                                const q = this.city ? '/' + this.city : '';
-                                fetch(this.api + '/weather' + q).then((r) => r.json()).then((data) => {
-                                    this.weather = data || {};
-                                });
-                            };
-                            if (this.city) {
-                                return getWeather();
-                            }
-                            if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition(
-                                    (position) => {
-                                        this.city = position.coords.longitude + ',' + position.coords.latitude;
-                                        getWeather();
-                                    },
-                                    (error) => {
-                                        getWeather();
-                                    }
-                                );
-                            } else {
+    <script type="text/javascript">
+        Vue.createApp({
+            data() {
+                return {
+                    api: 'https://api.rehi.org',
+                    title: '',
+                    city: '',
+                    calendar: {},
+                    datatime: [],
+                    weather: {},
+                    newsType: '',
+                    news: [],
+                };
+            },
+            created() {
+                this.setStyle();
+                this.fetchData();
+                this.createQRCode();
+                this.getCalendar();
+            },
+            methods: {
+                async fetchData() {
+                    // 获取查询参数
+                    const params = new URLSearchParams(location.search);
+                    this.newsType = params.get('news') || 'ithome,36kr,calendar';
+                    this.title = params.get('title') || '摸鱼日报';
+                    this.city = params.get('city') || '';
+                    document.title = this.title;
+                    // 获取天气信息
+                    this.geoWeather();
+                    // 从接口获取新闻
+                    for (const type of this.newsType.split(',')) {
+                        let data = await fetch(this.api + '/news/' + type).then((r) => r.json())
+                        data.list = data.list.slice(0, 10);
+                        this.news.push(data);
+                    }
+                },
+                setStyle() {
+                    const root = document.documentElement;
+                    const n = Math.max(1, Math.floor(Math.random() * 7));
+                    root.style.setProperty('--bg-image-1', `url(/images/bg${n}1.jpg)`);
+                    root.style.setProperty('--bg-image-2', `url(/images/bg${n}2.png)`);
+                },
+                getCalendar() {
+                    const p = new paipan()
+                    // 当前日期
+                    const d = new Date();
+                    const yy = d.getFullYear();
+                    const mm = d.getMonth() + 1;
+                    const dd = d.getDate();
+                    const hh = d.getHours();
+                    const mt = d.getMinutes();
+                    const ss = d.getSeconds();
+                    // 公历时间
+                    const hours = hh.toString().padStart(2, '0');
+                    const minutes = mt.toString().padStart(2, '0');
+                    const seconds = ss.toString().padStart(2, '0');
+                    const daysOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                    const dayOfWeek = daysOfWeek[d.getDay()];
+                    this.datetime = [yy + '年' + mm + '月' + dd + '日', dayOfWeek, hours + ':' + minutes + ':' + seconds];
+                    // 农历日期
+                    const fm = p.fatemaps(0, yy, mm, dd, hh, mt, ss);
+                    const y = fm.nl[0].toString().split('');
+                    let s = '';
+                    for (let i = 0; i < y.length; i++) {
+                        s += p.dxs[y[i]];
+                    }
+                    this.calendar.lunar = s + '(' + fm.nl[4].gz + ')' + '年 ' + (fm.nl[3] ? '闰' : '') + p.dxy[fm.nl[1] - 1] + p.dxd[fm.nl[2] - 1];
+                },
+                createQRCode() {
+                    const elem = document.getElementById('qrcode');
+                    new QRCode(elem, { text: location.href, width: 128, height: 128 });
+                },
+                geoWeather() {
+                    const getWeather = () => {
+                        const q = this.city ? '/' + this.city : '';
+                        fetch(this.api + '/weather' + q).then((r) => r.json()).then((data) => {
+                            this.weather = data || {};
+                        });
+                    };
+                    if (this.city) {
+                        return getWeather();
+                    }
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                this.city = position.coords.longitude + ',' + position.coords.latitude;
+                                getWeather();
+                            },
+                            (error) => {
                                 getWeather();
                             }
-                        }
-                    },
-                }).mount('#app');
-            </script>
+                        );
+                    } else {
+                        getWeather();
+                    }
+                }
+            },
+        }).mount('#app');
+    </script>
 </body>
 
 </html>
