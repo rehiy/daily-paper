@@ -64,10 +64,11 @@
             <div class="col-12 col-sm-9 px-3 py-2 fs-5 ly-content">
                 <b>{{weather.address.join('')}}</b>，{{weather.description}}；{{weather.forecast}}；
                 气温：{{weather.realtime.temperature}} ℃，体感：{{weather.realtime.apparent_temperature}} ℃；
-                相对湿度：{{parseInt(weather.realtime.humidity * 100)}}%；风速：{{weather.realtime.wind.speed}}公里/小时；
-                空气质量：{{weather.realtime.air_quality.description.chn}}，PM2.5：{{weather.realtime.air_quality.pm25}}，PM10：{{weather.realtime.air_quality.pm10}}；
-                舒适度指数：{{weather.realtime.life_index.comfort.index}}，{{weather.realtime.life_index.comfort.desc}}；
-                紫外线指数：{{weather.realtime.life_index.ultraviolet.index}}，{{weather.realtime.life_index.ultraviolet.desc}}；
+                气压：{{Math.round(weather.realtime.pressure / 100)}} hPa;
+                相对湿度：{{parseInt(weather.realtime.humidity * 100)}}%；风速：{{weather.realtime.wind.speed}} km/hr；
+                空气质量：{{weather.realtime.air_quality.aqi.chn}}【{{weather.realtime.air_quality.description.chn}}】，PM2.5：{{weather.realtime.air_quality.pm25}} μg/m³，PM10：{{weather.realtime.air_quality.pm10}} μg/m³；
+                舒适度指数：{{weather.realtime.life_index.comfort.index}}【{{weather.realtime.life_index.comfort.desc}}】；
+                紫外线指数：{{weather.realtime.life_index.ultraviolet.index}}【{{weather.realtime.life_index.ultraviolet.desc}}】；
             </div>
         </div>
 
