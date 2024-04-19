@@ -54,10 +54,9 @@ function file_type(url) {
     return mines[ext] || 'text/plain';
 }
 
-// cf esmodule
+// eo handler
 
-export default {
-    async fetch(request, env) {
-        return github_proxy(request);
-    }
-}
+addEventListener('fetch', e => {
+    const resp = github_proxy(e.request);
+    e.respondWith(resp);
+});
